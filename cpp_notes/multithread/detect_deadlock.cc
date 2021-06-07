@@ -67,8 +67,9 @@ bool DeadLock(vector<vector<int>> &tls) {
           }
           // 查询占用了next_lock锁的线程next_tid在等待哪个锁
           if (waitingthread2lock.find(next_tid) != waitingthread2lock.end()) {
-            // 更新next_lock
+            // 更新next_lock，next_lock是next_tid正在等待的锁
             next_lock = waitingthread2lock[next_tid];
+            // 接下来会进入下一轮while循环
           } else {
             // 说明没有环路，不发生死锁，更新waitingthread2lock;
             waitingthread2lock.insert({tid, next_lock});
@@ -100,11 +101,37 @@ bool DeadLock(vector<vector<int>> &tls) {
 
 int main() {
     bool is_deadlock;
-    vector<vector<int>> test_1 = {{1, 1, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}};
+    // deadlock will happen
+    vector<vector<int>> test_1 = {{1, 1, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}}; 
     is_deadlock = DeadLock(test_1);
     cout << (is_deadlock ? "deadlock happend" : "deadlock not happenend") << endl;
+
+    // deadlock will not happen
     vector<vector<int>> test_2 = {{1, 1, 1}, {2, 2, 1}, {1, 2, 1}, {2, 2, 0}};
     is_deadlock = DeadLock(test_2);
     cout << (is_deadlock ? "deadlock happend" : "deadlock not happenend") << endl;
     return 0;
 }
+
+/* 以test_1 = {{1, 1, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}}为例
+4个操作，会有4轮for循环
+
+前两轮for循环，分别处理{1, 1, 1}（线程1获取锁1）和{2, 2, 1}（线程2获取锁2），处理后
+lock2thread == { {1,   1},     {2,   2} }
+                  锁1  线程1   锁2   线程2 
+waitingthread2lock为空
+thread2locks == { { 1,    {1}}, {2,     {2}} }
+                    线程1  锁1   线程2   锁2
+
+第3轮，处理{1, 2, 1}（线程1获取锁2），锁2已线程2占用，线程1需要等待，处理后
+lock2thread == { {1,   1},     {2,   2} }
+                  锁1  线程1   锁2   线程2
+waitingthread2lock == { 1, 2 } （线程1等待锁2）
+thread2locks == { { 1,    {1}}, {2,     {2}} }
+                    线程1  锁1   线程2   锁2
+
+第4轮for循环，处理{2, 1, 1}（线程2获取锁1）
+此时，用1（锁1）访问lock2thread，得到1（线程1），
+然后在waitingthread2lock中用1（线程1）查找，发现1正在等待锁2，
+但是锁2正在被线程2持有，出现循环等待，造成死锁。
+*/
