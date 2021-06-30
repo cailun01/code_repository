@@ -24,3 +24,21 @@ class GrpcSession : public Session {
     virtual void Run() override;
 };
 
+class SessionFactory {
+  public:
+    virtual Session* NewSession() = 0;
+};
+
+class DirectSessionFactory : public SessionFactory {
+  public:
+    DirectSession* NewSession() override {
+      return new DirectSession();
+    }
+};
+
+class GrpcSessionFactory : public SessionFactory {
+  public:
+    GrpcSession* NewSession() override {
+      return new GrpcSession();
+    }
+};
