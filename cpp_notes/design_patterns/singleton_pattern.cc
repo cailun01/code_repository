@@ -1,10 +1,10 @@
 // C++11的单例模式
 // http://www.nuonsoft.com/blog/2017/08/10/implementing-a-thread-safe-singleton-with-c11-using-magic-statics/
-class CSingleton final
-{
+
+// 不一定final
+class CSingleton final {
 public:
     static CSingleton& GetInstance();
- 
 private:
     CSingleton() = default;
     ~CSingleton() = default;
@@ -15,8 +15,7 @@ private:
     CSingleton& operator=(CSingleton&&) = delete;
 };
  
-CSingleton& CSingleton::GetInstance()
-{
+CSingleton& CSingleton::GetInstance() {
     // 局部静态变量只被初始化一次
     // https://zhuanlan.zhihu.com/p/87213810
     static CSingleton instance;
