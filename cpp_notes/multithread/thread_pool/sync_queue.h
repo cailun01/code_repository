@@ -67,7 +67,7 @@ private:
   template<typename F>
   void add(F&& x) {
     unique_lock<mutex> locker(m_);
-    not_full_.wait(locker, [this](){ return need_stop_ || !full(); });
+    not_full_.wait(locker, [this](){ return need_stop_ || queue_.size() != max_size_; });
     if (need_stop_) {
       return;
     }
