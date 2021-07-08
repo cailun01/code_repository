@@ -6,10 +6,10 @@ https://codereview.stackexchange.com/questions/166395/custom-stdshared-ptrt-impl
 
 template<typename T>
 class SharedPtr {
-using uint32 = unsigned int;
+  using uint32 = unsigned int;
 private:
   T* ptr_;
-  uint32 count_;
+  uint32* count_;
 public:
   SharedPtr() : ptr_(nullptr), count_(new uint32(0)) {}
   explicit SharedPtr(T* pointer) : ptr_(pointer), count_(new uint32(1)) {}
